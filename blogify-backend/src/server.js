@@ -13,6 +13,16 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/api/articles/:name", async (req, res) => {
+  const { name } = req.params;
+  const blog = await Blog.findOne({ name });
+  if (blog) {
+    res.json(blog);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
 app.put("/api/articles/:name/upvote", (req, res) => {
   const { name } = req.params;
   const article = articlesInfo.find((article) => article.name === name);
