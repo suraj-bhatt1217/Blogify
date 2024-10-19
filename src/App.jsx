@@ -6,6 +6,7 @@ import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import ArticlesListPage from "./pages/ArticlesListPage";
 import ArticlePage from "./pages/ArticlePage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 // components
 import NavBar from "./components/NavBar";
@@ -23,6 +24,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/articles" element={<ArticlesListPage />} />
           <Route path="/articles/:articleId" element={<ArticlePage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
     </div>
