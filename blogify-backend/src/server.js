@@ -2,6 +2,8 @@ import "dotenv/config.js";
 import express from "express";
 import "../config/database.js";
 import { Blog } from "../models/Blog.js";
+import logger from "morgan";
+import cors from "cors";
 // fake db that will make development much easier,later will replace it with mongodb
 const articlesInfo = [
   { name: "learn-react", upvotes: 0, comments: [] },
@@ -10,10 +12,12 @@ const articlesInfo = [
 ];
 
 const app = express();
-
+app.use(cors());
+app.use(logger("dev"));
 app.use(express.json());
 
 app.get("/api/articles/:name", async (req, res) => {
+  console.log("get request received.");
   const { name } = req.params;
   const blog = await Blog.findOne({ name });
   if (blog) {
