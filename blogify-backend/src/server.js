@@ -1,5 +1,7 @@
+import "dotenv/config.js";
 import express from "express";
-
+import "../config/database.js";
+import { Blog } from "../models/Blog.js";
 // fake db that will make development much easier,later will replace it with mongodb
 const articlesInfo = [
   { name: "learn-react", upvotes: 0, comments: [] },
