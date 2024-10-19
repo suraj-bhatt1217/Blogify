@@ -1,3 +1,6 @@
+// npm modules
+import { Route, Routes } from "react-router-dom";
+
 // pages
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
@@ -12,10 +15,12 @@ function App() {
     <div className="App">
       <h1>Blogify</h1>
       <div id="page-body">
-        <HomePage />
-        <AboutPage />
-        <ArticlesListPage />
-        <ArticlePage />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/articles" element={<ArticlesListPage />} />
+          <Route path="/articles/:articleId" element={<ArticlePage />} />
+        </Routes>
       </div>
     </div>
   );
