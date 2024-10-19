@@ -7,13 +7,16 @@ import AboutPage from "./pages/AboutPage";
 import ArticlesListPage from "./pages/ArticlesListPage";
 import ArticlePage from "./pages/ArticlePage";
 
+// components
+import NavBar from "./components/NavBar";
+
 // css
 import "./App.css";
 
 function App() {
   return (
     <div className="App">
-      <h1>Blogify</h1>
+      <NavBar />
       <div id="page-body">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -27,4 +30,3 @@ function App() {
 }
 
 export default App;
-// creating your blog pages
