@@ -33,16 +33,15 @@ app.put("/api/articles/:name/upvote", async (req, res) => {
   res.json(article);
 });
 
-app.post("/api/articles/:name/comments", (req, res) => {
+app.post("/api/articles/:name/comments", async (req, res) => {
   const { name } = req.params;
   const { postedBy, text } = req.body;
-  const article = articlesInfo.find((article) => article.name === name);
-  if (article) {
-    article.comments.push({ postedBy, text });
-    res.send(article.comments);
-  } else {
-    res.send("The article doesn't exist");
-  }
+  const updatedBlog = await Blog.findOneAndUpdate(
+    { name },
+    { $push: { comments: { postedBy, text } } },
+    { new: true }
+  );
+  res.json(updatedBlog);
 });
 
 app.listen(3000, () => {
