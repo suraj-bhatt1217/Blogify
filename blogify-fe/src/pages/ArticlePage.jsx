@@ -7,6 +7,8 @@ import axios from "axios";
 
 import NotFoundPage from "./NotFoundPage";
 
+import CommentsList from "../components/CommentsList";
+
 const ArticlePage = () => {
   const [articleInfo, setArticleInfo] = useState({
     upvotes: 0,
@@ -18,7 +20,9 @@ const ArticlePage = () => {
     const loadArticleInfo = async () => {
       console.log(`Fetching article with ID: ${articleId}`);
       try {
-        const response = await axios.get(`http://localhost:3000/api/articles/${articleId}`);
+        const response = await axios.get(
+          `http://localhost:3000/api/articles/${articleId}`
+        );
         const newArticleInfo = response.data;
         console.log("API response:", newArticleInfo);
         setArticleInfo(newArticleInfo);
@@ -42,6 +46,7 @@ const ArticlePage = () => {
       {article.content.map((para, idx) => (
         <p key={idx}>{para}</p>
       ))}
+      <CommentsList comments={articleInfo.comments} />
     </>
   );
 };
