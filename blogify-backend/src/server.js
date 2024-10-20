@@ -13,40 +13,35 @@ admin.initializeApp({
   credential: admin.credential.cert(credentials),
 });
 
-// fake db that will make development much easier,later will replace it with mongodb
-const articlesInfo = [
-  { name: "learn-react", upvotes: 0, comments: [] },
-  { name: "learn-node", upvotes: 0, comments: [] },
-  { name: "mongodb", upvotes: 0, comments: [] },
-];
-
 const app = express();
 app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 
 app.use(async (req, res, next) => {
-  const { authToken } = req.headers;
+  console.log("Received headers:", req.headers);
+  const { authtoken } = req.headers;
 
-  if (auth) {
+  if (authtoken) {
     try {
-      req.user = await admin.auth().verifyIdToken(authToken);
+      req.user = await admin.auth().verifyIdToken(authtoken);
     } catch (e) {
-      res.sendStatus(400);
+      return res.sendStatus(400);
     }
   }
+  req.user = req.user || {};
   next();
 });
 
 app.get("/api/articles/:name", async (req, res) => {
-  console.log("get request received.");
   const { name } = req.params;
   const { uid } = req.user;
   const blog = await Blog.findOne({ name });
   if (blog) {
-    const upvoteIds = article.upvoteIds || [];
-    article.canUpvote = uid && !upvoteIds.include(uid);
-    res.json(blog);
+    const upvoteIds = blog.upvoteIds;
+    const canUpvote = uid && !upvoteIds.includes(uid);
+    console.log("user can upvote: ", canUpvote);
+    res.json({ ...blog._doc, canUpvote });
   } else {
     res.sendStatus(404);
   }
@@ -62,34 +57,42 @@ app.use((req, res, next) => {
 
 app.put("/api/articles/:name/upvote", async (req, res) => {
   const { name } = req.params;
+  const { uid } = req.user;
 
   const blog = await Blog.findOne({ name });
   if (blog) {
-    const upvoteIds = article.upvoteIds || [];
-    const cnaUpvote = uid && !upvoteIds.include(uid);
+    const upvoteIds = blog.upvoteIds;
+    console.log(upvoteIds);
+    console.log(uid);
+    const canUpvote = uid && !upvoteIds.includes(uid);
     if (canUpvote) {
-      const article = await Blog.findOneAndUpdate(
+      const updatedblog = await Blog.findOneAndUpdate(
         { name },
         { $inc: { upvotes: 1 }, $push: { upvoteIds: uid } },
         { new: true }
       );
+      res.json(updatedblog);
+    } else {
+      res.status(403).send("You have already upvoted this article.");
     }
   }
-
-  res.json(article);
 });
 
 app.post("/api/articles/:name/comments", async (req, res) => {
   const { name } = req.params;
   const { text } = req.body;
-  const { email } = req.user;
+  console.log(req.user);
 
   const updatedBlog = await Blog.findOneAndUpdate(
     { name },
     { $push: { comments: { postedBy: email, text } } },
     { new: true }
   );
-  res.json(updatedBlog);
+  if (updatedBlog) {
+    res.json(updatedBlog);
+  } else {
+    res.send("That article doesn't exist!");
+  }
 });
 
 app.listen(3000, () => {

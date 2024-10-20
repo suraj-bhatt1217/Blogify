@@ -6,6 +6,7 @@ const blogSchema = new Schema(
   {
     name: String,
     upvotes: Number,
+    upvoteIds: { type: [String], default: [] },
     comments: [Schema.Types.Mixed],
   },
   {
