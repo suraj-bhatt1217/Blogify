@@ -8,6 +8,7 @@ import axios from "axios";
 import NotFoundPage from "./NotFoundPage";
 
 import CommentsList from "../components/CommentsList";
+import AddCommentForm from "../components/AddCommentForm";
 
 const ArticlePage = () => {
   const [articleInfo, setArticleInfo] = useState({
@@ -58,6 +59,7 @@ const ArticlePage = () => {
       {article.content.map((para, idx) => (
         <p key={idx}>{para}</p>
       ))}
+      <AddCommentForm setArticleInfo={setArticleInfo} articleName={articleId} />
       <CommentsList comments={articleInfo.comments} />
     </>
   );
