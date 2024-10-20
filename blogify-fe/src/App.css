@@ -1,30 +1,57 @@
+/* Add this at the top of your CSS file for Animate.css */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css");
+
+/* Global Styles */
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 18px;
+  background: linear-gradient(to bottom right, #1e1e2f, #7b2ff7);
+  color: #fff;
+  margin: 0;
+  padding: 0;
 }
 
+/* Buttons */
 button {
   padding: 16px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: inherit;
   font-size: 16px;
-  background-color: black;
-  color: white;
+  background-color: #7b2ff7; /* Gradient background */
+  color: #fff;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+button:hover {
+  background: #ff3c78; /* Color on hover */
+  transform: scale(1.05);
+}
+
+/* Log In/Out Button Animations */
+button:active {
+  animation: pulse 0.5s infinite; /* Pulsing effect on click */
+}
+
+/* Headings */
 h3,
 h4 {
   margin-bottom: 0;
+  color: #ffcc00; /* Highlight color for headings */
 }
 
+/* Navigation */
 nav {
-  border-bottom: 4px solid black;
+  border-bottom: 4px solid #ff3c78;
   text-align: center;
   position: fixed;
   top: 0;
   width: 100%;
-  background: white;
+  background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+  backdrop-filter: blur(10px);
+  z-index: 1000;
 }
 
 nav ul {
@@ -35,83 +62,103 @@ nav ul {
 
 nav li {
   display: inline-block;
-  padding-top: 24px;
-  padding-bottom: 24px;
+  padding: 24px;
 }
 
 nav a {
   text-decoration: none;
-  color: black;
+  color: white;
   font-weight: bold;
-  padding: 24px 32px;
+  padding: 16px 24px;
+  transition: background 0.3s, transform 0.3s; /* Add transform for effect */
 }
 
 nav a:hover {
-  background: black;
-  color: white;
+  background: #ff3c78;
+  transform: translateY(-3px); /* Lift effect on hover */
 }
 
+/* Page Body */
 #page-body {
   max-width: 700px;
   margin: auto;
   padding-top: 72px;
 }
 
+/* Article List Item */
 .article-list-item {
   text-decoration: none;
-  color: black;
-  padding: 16px 0 0 0;
+  color: #fff;
+  padding: 16px 0;
 }
 
 .article-list-item p {
   padding-bottom: 32px;
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid #ffcc00;
 }
 
+/* Add Comment Form */
 #add-comment-form {
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid #ff3c78;
   padding: 16px;
 }
 
-#add-comment-form h3 {
-  margin-bottom: 16px;
-}
-
+/* Input Fields */
 input,
 textarea {
   display: block;
-  width: 300px;
+  width: calc(100% - 16px);
   padding: 8px;
   border-radius: 8px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: inherit;
   font-size: 18px;
-  border: 2px solid black;
+  border: 2px solid #ffcc00;
   margin-bottom: 16px;
+  transition: border 0.3s;
 }
 
+input:focus,
+textarea:focus {
+  border-color: #7b2ff7; /* Focus border color */
+}
+
+/* Error Message */
 .error {
   padding: 8px;
   border-radius: 4px;
-  background-color: pink;
+  background-color: #ffcc00; /* Bright error background */
 }
 
-#add-comment-form button {
-  width: 320px;
-}
-
+/* Upvotes Section */
 #upvotes-section button,
 p {
   display: inline-block;
   margin-right: 16px;
 }
 
+/* Comments */
 .comment {
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid #ff3c78;
   padding: 16px;
+  transition: background 0.3s;
 }
 
+.comment:hover {
+  background: rgba(255, 60, 120, 0.1); /* Hover effect for comments */
+}
+
+/* Navigation Right */
 .nav-right {
   position: absolute;
   top: 8px;
   right: 8px;
+}
+
+/* Link Animation */
+nav a {
+  animation-duration: 0.5s;
+}
+
+nav a:hover {
+  animation: shake 0.5s; /* Shake effect on hover */
 }

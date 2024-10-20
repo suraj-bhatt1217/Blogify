@@ -1,7 +1,9 @@
+import "animate.css";
+
 const HomePage = () => {
   return (
     <>
-      <h1>Home Page</h1>
+      <h1 className=" animate__animated animate__jackInTheBox">Home Page</h1>
       <p>
         Welcome to my blog! Proin congue ligula id risus posuere, vel eleifend
         ex egestas. Sed in turpis leo. Aliquam malesuada in massa tincidunt

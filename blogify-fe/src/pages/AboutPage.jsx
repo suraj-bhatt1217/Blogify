@@ -1,7 +1,9 @@
+import "animate.css";
+
 const AboutPage = () => {
   return (
     <>
-      <h1>About Page</h1>
+      <h1 className=" animate__animated animate__flipInY">About Page</h1>
       <p>
         Welcome to my blog! Proin congue ligula id risus posuere, vel eleifend
         ex egestas. Sed in turpis leo. Aliquam malesuada in massa tincidunt

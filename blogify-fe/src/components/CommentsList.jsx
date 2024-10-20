@@ -1,4 +1,5 @@
 const CommentsList = ({ comments }) => {
+  console.log(comments);
   return (
     <>
       <h3>Comments</h3>

@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+import "animate.css";
+
 import articles from "../data/article-content";
 
 import axios from "axios";
@@ -17,16 +19,21 @@ const ArticlePage = () => {
   const [articleInfo, setArticleInfo] = useState({
     upvotes: 0,
     comments: [],
+    canUpvote: false,
   });
+  const { canUpvote } = articleInfo;
   const { articleId } = useParams();
   const { user, isLoading } = useUser();
 
   useEffect(() => {
     const loadArticleInfo = async () => {
-      console.log(`Fetching article with ID: ${articleId}`);
+      const token = user && (await user.getIdToken());
+      const headers = token ? { authtoken: token } : {};
+      console.log("Sending headers:", headers);
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/articles/${articleId}`
+          `http://localhost:3000/api/articles/${articleId}`,
+          { headers }
         );
         const newArticleInfo = response.data;
         console.log("API response:", newArticleInfo);
@@ -35,14 +42,20 @@ const ArticlePage = () => {
         console.error("Error fetching article info:", error);
       }
     };
-    loadArticleInfo();
-  }, []);
+    if (!isLoading) {
+      loadArticleInfo();
+    }
+  }, [isLoading, user, articleId]);
 
   const article = articles.find((article) => article.name === articleId);
 
   const addUpvote = async () => {
+    const token = user && (await user.getIdToken());
+    const headers = token ? { authtoken: token } : {};
     const response = await axios.put(
-      `http://localhost:3000/api/articles/${articleId}/upvote`
+      `http://localhost:3000/api/articles/${articleId}/upvote`,
+      null,
+      { headers }
     );
     const updatedArticle = response.data;
     setArticleInfo(updatedArticle);
@@ -54,11 +67,13 @@ const ArticlePage = () => {
 
   return (
     <>
-      <h1>{article.title}</h1>
+      <h1 className=" animate__animated animate__bounceIn">{article.title}</h1>
 
       <div className="upvotes-section">
         {user ? (
-          <button onClick={addUpvote}>Upvote</button>
+          <button onClick={addUpvote}>
+            {canUpvote ? "Upvote" : "Already Upvoted"}
+          </button>
         ) : (
           <button>Log in to upvote</button>
         )}
