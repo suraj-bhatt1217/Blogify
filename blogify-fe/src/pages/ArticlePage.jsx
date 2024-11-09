@@ -15,6 +15,8 @@ import AddCommentForm from "../components/AddCommentForm";
 //hooks
 import useUser from "../hooks/useUser";
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 const ArticlePage = () => {
   const [articleInfo, setArticleInfo] = useState({
     upvotes: 0,
@@ -32,7 +34,7 @@ const ArticlePage = () => {
       console.log("Sending headers:", headers);
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/articles/${articleId}`,
+          `${apiUrl}/api/articles/${articleId}`,
           { headers }
         );
         const newArticleInfo = response.data;
@@ -53,7 +55,7 @@ const ArticlePage = () => {
     const token = user && (await user.getIdToken());
     const headers = token ? { authtoken: token } : {};
     const response = await axios.put(
-      `http://localhost:3000/api/articles/${articleId}/upvote`,
+      `${apiUrl}/api/articles/${articleId}/upvote`,
       null,
       { headers }
     );
