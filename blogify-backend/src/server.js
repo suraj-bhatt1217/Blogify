@@ -15,8 +15,10 @@ admin.initializeApp({
 
 const app = express();
 app.use(cors());
+
 app.use(logger("dev"));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../../blogify-fe/dist")));
 
 app.use(async (req, res, next) => {
   console.log("Received headers:", req.headers);
@@ -93,6 +95,10 @@ app.post("/api/articles/:name/comments", async (req, res) => {
   } else {
     res.send("That article doesn't exist!");
   }
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../blogify-fe/dist/index.html"));
 });
 
 app.listen(3000, () => {
