@@ -6,6 +6,7 @@ import "../config/database.js";
 import { Blog } from "../models/Blog.js";
 import logger from "morgan";
 import cors from "cors";
+import path from "path";
 
 //connect to firebase project
 const credentials = JSON.parse(fs.readFileSync("./credentials.json"));
@@ -14,9 +15,16 @@ admin.initializeApp({
 });
 
 const app = express();
-app.use(cors());
 
-app.use(logger("dev"));
+//
+app.use(
+  cors({
+    origin: "https://blogify-t7nc.vercel.app",
+    credentials: true,
+  })
+);
+
+https: app.use(logger("dev"));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../../blogify-fe/dist")));
 
