@@ -4,7 +4,9 @@ import useUser from "../hooks/useUser";
 
 import { useState } from "react";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+// Get API URL from environment variable or use fallback
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+console.log('[AddCommentForm] Using API URL:', apiUrl);
 
 const AddCommentForm = ({ articleName, setArticleInfo }) => {
   const [name, setName] = useState("");

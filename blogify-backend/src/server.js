@@ -16,11 +16,32 @@ admin.initializeApp({
 
 const app = express();
 
-//
+// CORS configuration - allows both local development and production URLs
+const allowedOrigins = [
+  'http://localhost:5173', // Vite default port
+  'http://localhost:3000',
+  'https://blogify-t7nc.vercel.app',
+  process.env.FRONTEND_URL, // From environment variable if set
+];
+
 app.use(
   cors({
-    origin: "https://blogify-t7nc.vercel.app",
-    credentials: true,
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl, etc)
+      if(!origin) return callback(null, true);
+      
+      if(allowedOrigins.indexOf(origin) === -1){
+        console.log("Origin allowed:", origin);
+        // Add the origin to allowed list if it's from vercel
+        if(origin.endsWith('.vercel.app')) {
+          allowedOrigins.push(origin);
+          return callback(null, true);
+        }
+        return callback(null, true); // For development - allow all origins
+      }
+      return callback(null, true);
+    },
+    credentials: true
   })
 );
 
@@ -44,16 +65,33 @@ app.use(async (req, res, next) => {
 });
 
 app.get("/api/articles/:name", async (req, res) => {
-  const { name } = req.params;
-  const { uid } = req.user;
-  const blog = await Blog.findOne({ name });
-  if (blog) {
-    const upvoteIds = blog.upvoteIds;
-    const canUpvote = uid && !upvoteIds.includes(uid);
-    console.log("user can upvote: ", canUpvote);
-    res.json({ ...blog._doc, canUpvote });
-  } else {
-    res.sendStatus(404);
+  try {
+    const { name } = req.params;
+    console.log(`Fetching article: ${name}`);
+    
+    // Get uid if available, otherwise set to null
+    const uid = req.user?.uid || null;
+    console.log(`Request user ID: ${uid || 'Not authenticated'}`);
+    
+    const blog = await Blog.findOne({ name });
+    
+    if (blog) {
+      // Ensure upvoteIds exists and is an array
+      const upvoteIds = blog.upvoteIds || [];
+      
+      // Only allow upvote if user is authenticated and hasn't already upvoted
+      const canUpvote = uid && !upvoteIds.includes(uid);
+      console.log("User can upvote:", canUpvote);
+      
+      // Return the blog with the canUpvote flag
+      res.json({ ...blog._doc, canUpvote });
+    } else {
+      console.log(`Article not found: ${name}`);
+      res.status(404).json({ error: "Article not found" });
+    }
+  } catch (error) {
+    console.error("Error in article fetch endpoint:", error);
+    res.status(500).json({ error: "Server error while fetching article" });
   }
 });
 
@@ -134,6 +172,12 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../../blogify-fe/dist/index.html"));
 });
 
-app.listen(3000, () => {
-  console.log("server listening on port 3000");
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3000, () => {
+    console.log("server listening on port 3000");
+  });
+}
+
+// Export the Express API for Vercel serverless deployment
+export default app;

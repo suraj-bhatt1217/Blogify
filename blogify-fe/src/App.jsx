@@ -9,6 +9,7 @@ import ArticlePage from "./pages/ArticlePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import LoginPage from "./pages/LoginPage";
 import CreateAccountPage from "./pages/CreateAccountPage";
+import DebugComponent from "./debug";
 
 // components
 import NavBar from "./components/NavBar";
@@ -28,6 +29,7 @@ function App() {
           <Route path="/articles/:articleId" element={<ArticlePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
+          <Route path="/debug" element={<DebugComponent />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

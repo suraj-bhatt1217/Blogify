@@ -14,6 +14,7 @@ const blogSchema = new Schema(
   }
 );
 
-const Blog = mongoose.model("Blog", blogSchema);
+// Explicitly set the collection name to match what's in your database
+const Blog = mongoose.model("Blog", blogSchema, "blogs");
 
 export { Blog };

@@ -15,7 +15,9 @@ import AddCommentForm from "../components/AddCommentForm";
 //hooks
 import useUser from "../hooks/useUser";
 
-const apiUrl = import.meta.env.VITE_API_URL
+// Get API URL from environment variable or use fallback
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+console.log('Using API URL:', apiUrl);
 
 const ArticlePage = () => {
   const [articleInfo, setArticleInfo] = useState({
@@ -29,19 +31,25 @@ const ArticlePage = () => {
 
   useEffect(() => {
     const loadArticleInfo = async () => {
-      const token = user && (await user.getIdToken());
-      const headers = token ? { authtoken: token } : {};
-      console.log("Sending headers:", headers);
       try {
-        const response = await axios.get(
-          `${apiUrl}/api/articles/${articleId}`,
-          { headers }
-        );
+        console.log(`Attempting to fetch article: ${articleId} from ${apiUrl}`);
+        const token = user && (await user.getIdToken());
+        const headers = token ? { authtoken: token } : {};
+        console.log("Request headers:", headers);
+        
+        const fullUrl = `${apiUrl}/api/articles/${articleId}`;
+        console.log("Full request URL:", fullUrl);
+        
+        const response = await axios.get(fullUrl, { headers });
+        
         const newArticleInfo = response.data;
         console.log("API response:", newArticleInfo);
         setArticleInfo(newArticleInfo);
       } catch (error) {
-        console.error("Error fetching article info:", error);
+        console.error("Error fetching article info:", error.message);
+        console.error("Full error object:", error);
+        console.error("Response data (if available):", error.response?.data);
+        console.error("Response status (if available):", error.response?.status);
       }
     };
     if (!isLoading) {
