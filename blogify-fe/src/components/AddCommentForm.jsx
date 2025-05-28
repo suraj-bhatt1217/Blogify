@@ -6,7 +6,14 @@ import { useState } from "react";
 
 // Get API URL from environment variable or use fallback
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+// Normalize API URL to avoid duplication
+const normalizedApiUrl = apiUrl.endsWith('/api') ? apiUrl : 
+                        apiUrl === '/api' ? '' : 
+                        apiUrl;
+
 console.log('[AddCommentForm] Using API URL:', apiUrl);
+console.log('[AddCommentForm] Normalized API URL:', normalizedApiUrl);
 
 const AddCommentForm = ({ articleName, setArticleInfo }) => {
   const [name, setName] = useState("");
@@ -32,13 +39,13 @@ const AddCommentForm = ({ articleName, setArticleInfo }) => {
       const headers = { authtoken: token };
       
       console.log("Sending comment request with token", {
-        url: `${apiUrl}/api/articles/${articleName}/comments`,
+        url: `${normalizedApiUrl}/api/articles/${articleName}/comments`,
         headers: headers,
         text: commentText
       });
 
       const response = await axios.post(
-        `${apiUrl}/api/articles/${articleName}/comments`,
+        `${normalizedApiUrl}/api/articles/${articleName}/comments`,
         {
           text: commentText,
         },

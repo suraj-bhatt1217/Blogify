@@ -16,8 +16,15 @@ import AddCommentForm from "../components/AddCommentForm";
 import useUser from "../hooks/useUser";
 
 // Get API URL from environment variable or use fallback
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+// Normalize API URL to avoid duplication
+const normalizedApiUrl = apiUrl.endsWith('/api') ? apiUrl : 
+                        apiUrl === '/api' ? '' : 
+                        apiUrl;
+
 console.log('Using API URL:', apiUrl);
+console.log('Normalized API URL:', normalizedApiUrl);
 
 const ArticlePage = () => {
   const [articleInfo, setArticleInfo] = useState({
@@ -32,12 +39,12 @@ const ArticlePage = () => {
   useEffect(() => {
     const loadArticleInfo = async () => {
       try {
-        console.log(`Attempting to fetch article: ${articleId} from ${apiUrl}`);
+        console.log(`Attempting to fetch article: ${articleId} from ${normalizedApiUrl}`);
         const token = user && (await user.getIdToken());
         const headers = token ? { authtoken: token } : {};
         console.log("Request headers:", headers);
         
-        const fullUrl = `${apiUrl}/api/articles/${articleId}`;
+        const fullUrl = `${normalizedApiUrl}/api/articles/${articleId}`;
         console.log("Full request URL:", fullUrl);
         
         const response = await axios.get(fullUrl, { headers });
@@ -71,7 +78,7 @@ const ArticlePage = () => {
       console.log("Sending upvote request with headers:", headers);
       
       const response = await axios.put(
-        `${apiUrl}/api/articles/${articleId}/upvote`,
+        `${normalizedApiUrl}/api/articles/${articleId}/upvote`,
         null,
         { headers }
       );
