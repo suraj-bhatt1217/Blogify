@@ -12,22 +12,48 @@ const AddCommentForm = ({ articleName, setArticleInfo }) => {
   const { user } = useUser();
 
   const addComment = async () => {
-    const token = user && (await user.getIdToken());
-    console.log("User object:", user); // Log user object
-    const headers = token ? { authtoken: token } : {};
-    const response = await axios.post(
-      `${apiUrl}/api/articles/${articleName}/comments`,
-      {
-        text: commentText,
-      },
-      {
-        headers,
+    try {
+      // Validate comment text
+      if (!commentText || commentText.trim() === '') {
+        alert("Comment text cannot be empty");
+        return;
       }
-    );
-    const updatedArticle = response.data;
-    setArticleInfo(updatedArticle);
-    setName("");
-    setCommentText("");
+
+      // Check authentication
+      const token = user && (await user.getIdToken());
+      if (!token) {
+        alert("You must be logged in to comment");
+        return;
+      }
+
+      console.log("User object:", user); // Log user object
+      const headers = { authtoken: token };
+      
+      console.log("Sending comment request with token", {
+        url: `${apiUrl}/api/articles/${articleName}/comments`,
+        headers: headers,
+        text: commentText
+      });
+
+      const response = await axios.post(
+        `${apiUrl}/api/articles/${articleName}/comments`,
+        {
+          text: commentText,
+        },
+        {
+          headers,
+        }
+      );
+      
+      const updatedArticle = response.data;
+      console.log("Comment added successfully:", updatedArticle);
+      setArticleInfo(updatedArticle);
+      setName("");
+      setCommentText("");
+    } catch (error) {
+      console.error("Error adding comment:", error.response?.data || error.message);
+      alert("Failed to add comment: " + (error.response?.data || "Please try again later"));
+    }
   };
 
   return (

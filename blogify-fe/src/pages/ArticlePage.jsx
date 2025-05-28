@@ -52,15 +52,29 @@ const ArticlePage = () => {
   const article = articles.find((article) => article.name === articleId);
 
   const addUpvote = async () => {
-    const token = user && (await user.getIdToken());
-    const headers = token ? { authtoken: token } : {};
-    const response = await axios.put(
-      `${apiUrl}/api/articles/${articleId}/upvote`,
-      null,
-      { headers }
-    );
-    const updatedArticle = response.data;
-    setArticleInfo(updatedArticle);
+    try {
+      const token = user && (await user.getIdToken());
+      if (!token) {
+        console.error("No authentication token available");
+        return;
+      }
+      
+      const headers = { authtoken: token };
+      console.log("Sending upvote request with headers:", headers);
+      
+      const response = await axios.put(
+        `${apiUrl}/api/articles/${articleId}/upvote`,
+        null,
+        { headers }
+      );
+      
+      const updatedArticle = response.data;
+      console.log("Upvote successful:", updatedArticle);
+      setArticleInfo(updatedArticle);
+    } catch (error) {
+      console.error("Error upvoting article:", error.response?.data || error.message);
+      alert("Failed to upvote: " + (error.response?.data || "Please try again later"));
+    }
   };
 
   if (!article) {

@@ -57,52 +57,76 @@ app.get("/api/articles/:name", async (req, res) => {
   }
 });
 
-app.use((req, res, next) => {
-  if (req.user) {
+// Protected routes middleware - all routes below this will require authentication
+const requireAuth = (req, res, next) => {
+  if (req.user && req.user.uid) {
     next();
   } else {
-    res.sendStatus(401);
+    res.status(401).send("Authentication required");
   }
-});
+};
 
-app.put("/api/articles/:name/upvote", async (req, res) => {
+app.put("/api/articles/:name/upvote", requireAuth, async (req, res) => {
   const { name } = req.params;
   const { uid } = req.user;
 
-  const blog = await Blog.findOne({ name });
-  if (blog) {
-    const upvoteIds = blog.upvoteIds;
-    console.log(upvoteIds);
-    console.log(uid);
-    const canUpvote = uid && !upvoteIds.includes(uid);
-    if (canUpvote) {
-      const updatedblog = await Blog.findOneAndUpdate(
-        { name },
-        { $inc: { upvotes: 1 }, $push: { upvoteIds: uid } },
-        { new: true }
-      );
-      res.json(updatedblog);
+  try {
+    const blog = await Blog.findOne({ name });
+    if (blog) {
+      const upvoteIds = blog.upvoteIds || [];
+      console.log("Current upvoteIds:", upvoteIds);
+      console.log("User ID:", uid);
+      const canUpvote = uid && !upvoteIds.includes(uid);
+      if (canUpvote) {
+        const updatedblog = await Blog.findOneAndUpdate(
+          { name },
+          { $inc: { upvotes: 1 }, $push: { upvoteIds: uid } },
+          { new: true }
+        );
+        res.json(updatedblog);
+      } else {
+        res.status(403).send("You have already upvoted this article.");
+      }
     } else {
-      res.status(403).send("You have already upvoted this article.");
+      res.status(404).send("Article not found");
     }
+  } catch (error) {
+    console.error("Error in upvote endpoint:", error);
+    res.status(500).send("Server error");
   }
 });
 
-app.post("/api/articles/:name/comments", async (req, res) => {
+app.post("/api/articles/:name/comments", requireAuth, async (req, res) => {
   const { name } = req.params;
   const { text } = req.body;
   const { email } = req.user;
-  console.log(req.user);
+  
+  console.log("User attempting to comment:", req.user);
 
-  const updatedBlog = await Blog.findOneAndUpdate(
-    { name },
-    { $push: { comments: { postedBy: email, text } } },
-    { new: true }
-  );
-  if (updatedBlog) {
+  try {
+    if (!email) {
+      return res.status(400).send("User email is required");
+    }
+    
+    if (!text || text.trim() === '') {
+      return res.status(400).send("Comment text cannot be empty");
+    }
+
+    const blog = await Blog.findOne({ name });
+    if (!blog) {
+      return res.status(404).send("Article not found");
+    }
+
+    const updatedBlog = await Blog.findOneAndUpdate(
+      { name },
+      { $push: { comments: { postedBy: email, text } } },
+      { new: true }
+    );
+    
     res.json(updatedBlog);
-  } else {
-    res.send("That article doesn't exist!");
+  } catch (error) {
+    console.error("Error posting comment:", error);
+    res.status(500).send("Server error while posting comment");
   }
 });
 
