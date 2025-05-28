@@ -1,0 +1,21 @@
+{
+  "projects": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node",
+      "env": {
+        "MONGO_URI": "your-mongodb-uri-here",
+        "API_KEY": "your-api-key-here"
+      }
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/backend/server.js" },
+    { "source": "/(.*)", "destination": "/frontend/dist/$1" }
+  ]
+}

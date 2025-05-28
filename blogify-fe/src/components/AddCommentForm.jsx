@@ -4,6 +4,8 @@ import useUser from "../hooks/useUser";
 
 import { useState } from "react";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const AddCommentForm = ({ articleName, setArticleInfo }) => {
   const [name, setName] = useState("");
   const [commentText, setCommentText] = useState("");
@@ -14,7 +16,7 @@ const AddCommentForm = ({ articleName, setArticleInfo }) => {
     console.log("User object:", user); // Log user object
     const headers = token ? { authtoken: token } : {};
     const response = await axios.post(
-      `http://localhost:3000/api/articles/${articleName}/comments`,
+      `${apiUrl}/api/articles/${articleName}/comments`,
       {
         text: commentText,
       },

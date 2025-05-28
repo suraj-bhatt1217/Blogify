@@ -24,7 +24,7 @@ app.use(
   })
 );
 
-https: app.use(logger("dev"));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../../blogify-fe/dist")));
 
@@ -91,6 +91,7 @@ app.put("/api/articles/:name/upvote", async (req, res) => {
 app.post("/api/articles/:name/comments", async (req, res) => {
   const { name } = req.params;
   const { text } = req.body;
+  const { email } = req.user;
   console.log(req.user);
 
   const updatedBlog = await Blog.findOneAndUpdate(
