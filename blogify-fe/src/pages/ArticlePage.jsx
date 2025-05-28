@@ -19,9 +19,8 @@ import useUser from "../hooks/useUser";
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // Normalize API URL to avoid duplication
-const normalizedApiUrl = apiUrl.endsWith('/api') ? apiUrl : 
-                        apiUrl === '/api' ? '' : 
-                        apiUrl;
+// If apiUrl is '/api', use empty string to prevent duplication
+const normalizedApiUrl = apiUrl === '/api' ? '' : apiUrl;
 
 console.log('Using API URL:', apiUrl);
 console.log('Normalized API URL:', normalizedApiUrl);
