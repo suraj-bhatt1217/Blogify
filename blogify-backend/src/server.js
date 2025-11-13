@@ -14,8 +14,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 //connect to firebase project
-const credentialsPath = path.join(__dirname, "../credentials.json");
-const credentials = JSON.parse(fs.readFileSync(credentialsPath));
+// Use environment variables in production (Vercel), credentials.json in local development
+let credentials;
+if (process.env.FIREBASE_CREDENTIALS) {
+  // Production: credentials from environment variable (Vercel)
+  credentials = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+} else {
+  // Local development: credentials from file
+  const credentialsPath = path.join(__dirname, "../credentials.json");
+  credentials = JSON.parse(fs.readFileSync(credentialsPath));
+}
+
 admin.initializeApp({
   credential: admin.credential.cert(credentials),
 });
@@ -53,7 +62,11 @@ app.use(
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../../blogify-fe/dist")));
+
+// Only serve static files in local development (not in Vercel production)
+if (process.env.NODE_ENV !== 'production') {
+  app.use(express.static(path.join(__dirname, "../../blogify-fe/dist")));
+}
 
 app.use(async (req, res, next) => {
   console.log("Received headers:", req.headers);
@@ -199,12 +212,17 @@ app.post("/api/articles/:name/comments", requireAuth, async (req, res) => {
   }
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../blogify-fe/dist/index.html"));
-});
+// For Vercel: Don't serve static files or catch-all route - that's handled by frontend
+// Only serve API routes
 
-// For local development
+// For local development: serve frontend and start server
 if (process.env.NODE_ENV !== 'production') {
+  // Serve static files from frontend dist in local development
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../blogify-fe/dist/index.html"));
+  });
+  
+  // Start server on port 3000 for local development
   app.listen(3000, () => {
     console.log("server listening on port 3000");
   });

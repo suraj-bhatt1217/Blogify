@@ -8,7 +8,9 @@
     {
       "src": "blogify-fe/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
@@ -18,7 +20,9 @@
     },
     {
       "src": "/(.*)",
-      "dest": "blogify-fe/$1"
+      "dest": "/blogify-fe/$1"
     }
-  ]
+  ],
+  "installCommand": "cd blogify-fe && npm install && cd ../blogify-backend && npm install",
+  "buildCommand": "cd blogify-fe && npm run build"
 }
