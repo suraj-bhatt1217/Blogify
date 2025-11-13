@@ -1,36 +1,29 @@
-import "animate.css";
-
 const AboutPage = () => {
   return (
-    <>
-      <h1 className=" animate__animated animate__flipInY">About Page</h1>
+    <div className="about-content">
+      <h1>About Blogify</h1>
       <p>
-        Welcome to my blog! Proin congue ligula id risus posuere, vel eleifend
-        ex egestas. Sed in turpis leo. Aliquam malesuada in massa tincidunt
-        egestas. Nam consectetur varius turpis, non porta arcu porttitor non. In
-        tincidunt vulputate nulla quis egestas. Ut eleifend ut ipsum non
-        fringilla. Praesent imperdiet nulla nec est luctus, at sodales purus
-        euismod.
+        Blogify is a modern, interactive blogging platform built with cutting-edge web technologies. Our mission is to provide developers and tech enthusiasts with high-quality, in-depth articles on the latest web development technologies and best practices.
       </p>
       <p>
-        Donec vel mauris lectus. Etiam nec lectus urna. Sed sodales ultrices
-        dapibus. Nam blandit tristique risus, eget accumsan nisl interdum eu.
-        Aenean ac accumsan nisi. Nunc vel pulvinar diam. Nam eleifend egestas
-        viverra. Donec finibus lectus sed lorem ultricies, eget ornare leo
-        luctus. Morbi vehicula, nulla eu tempor interdum, nibh elit congue
-        tellus, ac vulputate urna lorem nec nisi. Morbi id consequat quam.
-        Vivamus accumsan dui in facilisis aliquet.,
+        This platform is built using React for the frontend, providing a fast and responsive user experience. The backend is powered by Node.js and Express, ensuring scalable and efficient server-side operations. MongoDB serves as our database, offering flexibility and performance for our content management needs.
       </p>
       <p>
-        Etiam nec lectus urna. Sed sodales ultrices dapibus. Nam blandit
-        tristique risus, eget accumsan nisl interdum eu. Aenean ac accumsan
-        nisi. Nunc vel pulvinar diam. Nam eleifend egestas viverra. Donec
-        finibus lectus sed lorem ultricies, eget ornare leo luctus. Morbi
-        vehicula, nulla eu tempor interdum, nibh elit congue tellus, ac
-        vulputate urna lorem nec nisi. Morbi id consequat quam. Vivamus accumsan
-        dui in facilisis aliquet.,
+        We believe in learning through practical examples and community engagement. That's why Blogify features interactive elements like upvoting articles and commenting, allowing readers to engage with content and share their knowledge with the community.
       </p>
-    </>
+      <div style={{ marginTop: "2rem" }}>
+        <h2>Technologies Used</h2>
+        <ul>
+          <li><strong>Frontend:</strong> React, React Router, Vite, CSS3</li>
+          <li><strong>Backend:</strong> Node.js, Express.js, MongoDB, Mongoose</li>
+          <li><strong>Authentication:</strong> Firebase Authentication</li>
+          <li><strong>Deployment:</strong> Vercel</li>
+        </ul>
+      </div>
+      <p style={{ marginTop: "2rem" }}>
+        Join our community of developers and start learning today! Whether you're building your first web application or looking to expand your skills, Blogify has something for everyone.
+      </p>
+    </div>
   );
 };
 

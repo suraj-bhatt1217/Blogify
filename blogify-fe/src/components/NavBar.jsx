@@ -5,8 +5,6 @@ import useUser from "../hooks/useUser";
 
 import { getAuth, signOut } from "firebase/auth";
 
-import "animate.css";
-
 const NavBar = () => {
   const { user } = useUser();
   const navigate = useNavigate();
@@ -15,19 +13,13 @@ const NavBar = () => {
     <nav>
       <ul>
         <li>
-          <Link to="/" className="animate__animated animate__bounceIn">
-            Home
-          </Link>
+          <Link to="/">Home</Link>
         </li>
         <li>
-          <Link to="/about" className="animate__animated animate__bounceIn">
-            About
-          </Link>
+          <Link to="/about">About</Link>
         </li>
         <li>
-          <Link to="/articles" className="animate__animated animate__bounceIn">
-            Articles
-          </Link>
+          <Link to="/articles">Articles</Link>
         </li>
       </ul>
       <div className="nav-right">
@@ -36,15 +28,11 @@ const NavBar = () => {
             onClick={() => {
               signOut(getAuth());
             }}
-            className="animate__animated animate__pulse"
           >
             Log out
           </button>
         ) : (
-          <button
-            className="animate__animated animate__pulse"
-            onClick={() => navigate("/login")}
-          >
+          <button onClick={() => navigate("/login")}>
             Log In
           </button>
         )}

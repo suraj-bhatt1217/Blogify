@@ -4,9 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "node src/server.js",
     "seed": "node src/seed-data.js",
-    "check-data": "node src/check-data.js"
+    "check-data": "node src/check-data.js",
+    "test-connection": "node src/test-connection.js"
   },
   "keywords": [],
   "author": "",

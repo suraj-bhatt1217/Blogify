@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import "animate.css";
@@ -26,36 +26,38 @@ console.log('Using API URL:', apiUrl);
 console.log('Normalized API URL:', normalizedApiUrl);
 
 const ArticlePage = () => {
-  const [articleInfo, setArticleInfo] = useState({
-    upvotes: 0,
-    comments: [],
-    canUpvote: false,
-  });
-  const { canUpvote } = articleInfo;
+  const [articleInfo, setArticleInfo] = useState(null); // null = loading, {} = loaded
+  const [isLoadingArticle, setIsLoadingArticle] = useState(true);
   const { articleId } = useParams();
   const { user, isLoading } = useUser();
 
   useEffect(() => {
     const loadArticleInfo = async () => {
+      setIsLoadingArticle(true);
       try {
-        console.log(`Attempting to fetch article: ${articleId} from ${normalizedApiUrl}`);
         const token = user && (await user.getIdToken());
         const headers = token ? { authtoken: token } : {};
-        console.log("Request headers:", headers);
         
         const fullUrl = `${normalizedApiUrl}/api/articles/${articleId}`;
-        console.log("Full request URL:", fullUrl);
-        
         const response = await axios.get(fullUrl, { headers });
         
         const newArticleInfo = response.data;
-        console.log("API response:", newArticleInfo);
-        setArticleInfo(newArticleInfo);
+        // Ensure we set all required fields
+        setArticleInfo({
+          upvotes: newArticleInfo.upvotes || 0,
+          comments: newArticleInfo.comments || [],
+          canUpvote: newArticleInfo.canUpvote !== undefined ? newArticleInfo.canUpvote : false
+        });
       } catch (error) {
         console.error("Error fetching article info:", error.message);
-        console.error("Full error object:", error);
-        console.error("Response data (if available):", error.response?.data);
-        console.error("Response status (if available):", error.response?.status);
+        // Set default values on error
+        setArticleInfo({
+          upvotes: 0,
+          comments: [],
+          canUpvote: false
+        });
+      } finally {
+        setIsLoadingArticle(false);
       }
     };
     if (!isLoading) {
@@ -66,16 +68,23 @@ const ArticlePage = () => {
   const article = articles.find((article) => article.name === articleId);
 
   const addUpvote = async () => {
+    if (!articleInfo) return;
+    
     try {
       const token = user && (await user.getIdToken());
       if (!token) {
-        console.error("No authentication token available");
+        alert("You must be logged in to upvote");
         return;
       }
       
-      const headers = { authtoken: token };
-      console.log("Sending upvote request with headers:", headers);
+      // Optimistic update - update UI immediately
+      setArticleInfo(prev => ({
+        ...prev,
+        upvotes: prev.upvotes + 1,
+        canUpvote: false
+      }));
       
+      const headers = { authtoken: token };
       const response = await axios.put(
         `${normalizedApiUrl}/api/articles/${articleId}/upvote`,
         null,
@@ -83,11 +92,22 @@ const ArticlePage = () => {
       );
       
       const updatedArticle = response.data;
-      console.log("Upvote successful:", updatedArticle);
-      setArticleInfo(updatedArticle);
+      // Update with server response
+      setArticleInfo({
+        upvotes: updatedArticle.upvotes || 0,
+        comments: updatedArticle.comments || [],
+        canUpvote: updatedArticle.canUpvote !== undefined ? updatedArticle.canUpvote : false
+      });
     } catch (error) {
+      // Revert optimistic update on error
+      setArticleInfo(prev => ({
+        ...prev,
+        upvotes: prev.upvotes - 1,
+        canUpvote: true
+      }));
       console.error("Error upvoting article:", error.response?.data || error.message);
-      alert("Failed to upvote: " + (error.response?.data || "Please try again later"));
+      const errorMessage = error.response?.data?.error || error.response?.data || error.message;
+      alert("Failed to upvote: " + errorMessage);
     }
   };
 
@@ -95,34 +115,59 @@ const ArticlePage = () => {
     return <NotFoundPage />;
   }
 
+  const canUpvote = articleInfo?.canUpvote ?? false;
+
   return (
     <>
-      <h1 className=" animate__animated animate__bounceIn">{article.title}</h1>
+      <h1 className="article-title">{article.title}</h1>
 
-      <div className="upvotes-section">
-        {user ? (
-          <button onClick={addUpvote}>
-            {canUpvote ? "Upvote" : "Already Upvoted"}
-          </button>
-        ) : (
-          <button>Log in to upvote</button>
-        )}
-        <p>This article has {articleInfo.upvotes} upvotes.</p>
-      </div>
-
-      {article.content.map((para, idx) => (
-        <p key={idx}>{para}</p>
-      ))}
-      {user ? (
-        <AddCommentForm
-          setArticleInfo={setArticleInfo}
-          articleName={articleId}
-        />
+      {isLoadingArticle ? (
+        <div className="loading-skeleton">
+          <div className="skeleton upvote-skeleton"></div>
+          <div className="skeleton content-skeleton"></div>
+          <div className="skeleton content-skeleton"></div>
+        </div>
       ) : (
-        <button>Log in to add comment</button>
-      )}
+        <>
+          <div className="upvotes-section">
+            {user ? (
+              <button 
+                onClick={addUpvote}
+                disabled={!canUpvote || isLoadingArticle}
+                className={`upvote-btn ${canUpvote ? 'upvote-active' : 'upvote-disabled'}`}
+              >
+                {canUpvote ? "👍 Upvote" : "✓ Already Upvoted"}
+              </button>
+            ) : (
+              <button disabled className="upvote-btn upvote-disabled">
+                Log in to upvote
+              </button>
+            )}
+            <p className="upvote-count">
+              {articleInfo?.upvotes ?? 0} upvote{(articleInfo?.upvotes ?? 0) !== 1 ? 's' : ''}
+            </p>
+          </div>
 
-      <CommentsList comments={articleInfo.comments} />
+          <div className="article-content">
+            {article.content.map((para, idx) => (
+              <p key={idx} className="article-paragraph">{para}</p>
+            ))}
+          </div>
+          
+          {user ? (
+            <AddCommentForm
+              setArticleInfo={setArticleInfo}
+              articleName={articleId}
+            />
+          ) : (
+            <div className="login-prompt">
+              <p>Please <Link to="/login">log in</Link> to add a comment.</p>
+            </div>
+          )}
+
+          <CommentsList comments={articleInfo?.comments || []} />
+        </>
+      )}
     </>
   );
 };

@@ -15,7 +15,6 @@ console.log('[AddCommentForm] Using API URL:', apiUrl);
 console.log('[AddCommentForm] Normalized API URL:', normalizedApiUrl);
 
 const AddCommentForm = ({ articleName, setArticleInfo }) => {
-  const [name, setName] = useState("");
   const [commentText, setCommentText] = useState("");
   const { user } = useUser();
 
@@ -55,12 +54,40 @@ const AddCommentForm = ({ articleName, setArticleInfo }) => {
       
       const updatedArticle = response.data;
       console.log("Comment added successfully:", updatedArticle);
-      setArticleInfo(updatedArticle);
-      setName("");
+      // Update article info with the response
+      setArticleInfo({
+        upvotes: updatedArticle.upvotes || 0,
+        comments: updatedArticle.comments || [],
+        canUpvote: updatedArticle.canUpvote !== undefined ? updatedArticle.canUpvote : false
+      });
       setCommentText("");
     } catch (error) {
-      console.error("Error adding comment:", error.response?.data || error.message);
-      alert("Failed to add comment: " + (error.response?.data || "Please try again later"));
+      console.error("Error adding comment:", error);
+      console.error("Error response:", error.response);
+      let errorMessage = "Please try again later";
+      
+      if (error.response) {
+        // Server responded with error
+        if (error.response.data) {
+          if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data;
+          } else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          } else {
+            errorMessage = JSON.stringify(error.response.data);
+          }
+        } else {
+          errorMessage = `Server error: ${error.response.status} ${error.response.statusText}`;
+        }
+      } else if (error.request) {
+        // Request was made but no response
+        errorMessage = "Cannot connect to server. Please check if the backend is running.";
+      } else {
+        // Something else happened
+        errorMessage = error.message || "An unexpected error occurred";
+      }
+      
+      alert(`Failed to add comment: ${errorMessage}`);
     }
   };
 

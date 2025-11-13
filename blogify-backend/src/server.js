@@ -7,9 +7,15 @@ import { Blog } from "../models/Blog.js";
 import logger from "morgan";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 //connect to firebase project
-const credentials = JSON.parse(fs.readFileSync("./credentials.json"));
+const credentialsPath = path.join(__dirname, "../credentials.json");
+const credentials = JSON.parse(fs.readFileSync(credentialsPath));
 admin.initializeApp({
   credential: admin.credential.cert(credentials),
 });
@@ -76,15 +82,28 @@ app.get("/api/articles/:name", async (req, res) => {
     const blog = await Blog.findOne({ name });
     
     if (blog) {
-      // Ensure upvoteIds exists and is an array
+      // Ensure upvoteIds and comments exist
       const upvoteIds = blog.upvoteIds || [];
+      const comments = blog.comments || [];
+      
+      // Sort comments by creation date (newest first)
+      comments.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB - dateA;
+      });
       
       // Only allow upvote if user is authenticated and hasn't already upvoted
       const canUpvote = uid && !upvoteIds.includes(uid);
       console.log("User can upvote:", canUpvote);
       
-      // Return the blog with the canUpvote flag
-      res.json({ ...blog._doc, canUpvote });
+      // Return the blog with the canUpvote flag and sorted comments
+      res.json({ 
+        ...blog._doc, 
+        canUpvote,
+        comments,
+        upvotes: blog.upvotes || 0
+      });
     } else {
       console.log(`Article not found: ${name}`);
       res.status(404).json({ error: "Article not found" });
@@ -121,50 +140,62 @@ app.put("/api/articles/:name/upvote", requireAuth, async (req, res) => {
           { $inc: { upvotes: 1 }, $push: { upvoteIds: uid } },
           { new: true }
         );
-        res.json(updatedblog);
+        // After upvoting, user can no longer upvote
+        res.json({ ...updatedblog._doc, canUpvote: false });
       } else {
-        res.status(403).send("You have already upvoted this article.");
+        res.status(403).json({ error: "You have already upvoted this article." });
       }
     } else {
-      res.status(404).send("Article not found");
+      res.status(404).json({ error: "Article not found" });
     }
   } catch (error) {
     console.error("Error in upvote endpoint:", error);
-    res.status(500).send("Server error");
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 app.post("/api/articles/:name/comments", requireAuth, async (req, res) => {
   const { name } = req.params;
   const { text } = req.body;
-  const { email } = req.user;
+  const { email, uid } = req.user;
   
   console.log("User attempting to comment:", req.user);
 
   try {
     if (!email) {
-      return res.status(400).send("User email is required");
+      return res.status(400).json({ error: "User email is required" });
     }
     
     if (!text || text.trim() === '') {
-      return res.status(400).send("Comment text cannot be empty");
+      return res.status(400).json({ error: "Comment text cannot be empty" });
     }
 
     const blog = await Blog.findOne({ name });
     if (!blog) {
-      return res.status(404).send("Article not found");
+      return res.status(404).json({ error: "Article not found" });
     }
+
+    // Create comment with timestamp
+    const comment = {
+      postedBy: email,
+      text: text.trim(),
+      createdAt: new Date()
+    };
 
     const updatedBlog = await Blog.findOneAndUpdate(
       { name },
-      { $push: { comments: { postedBy: email, text } } },
+      { $push: { comments: comment } },
       { new: true }
     );
     
-    res.json(updatedBlog);
+    // Return updated blog with canUpvote flag
+    const upvoteIds = updatedBlog.upvoteIds || [];
+    const canUpvote = uid && !upvoteIds.includes(uid);
+    
+    res.json({ ...updatedBlog._doc, canUpvote });
   } catch (error) {
     console.error("Error posting comment:", error);
-    res.status(500).send("Server error while posting comment");
+    res.status(500).json({ error: "Server error while posting comment" });
   }
 });
 

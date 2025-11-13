@@ -26,36 +26,45 @@ const CreateAccountPage = () => {
   };
 
   return (
-    <>
+    <div className="create-account-container">
       <h1>Create Account</h1>
-      {error && <p className="error"> {error}</p>}
-      <input
-        type="email"
-        placeholder="Your email address"
-        value={email}
-        onChange={(e) => {
-          setEmail(e.target.value);
-        }}
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => {
-          setPassword(e.target.value);
-        }}
-        placeholder="your password"
-      />
-      <input
-        type="password"
-        value={confirmPassword}
-        onChange={(e) => {
-          setConfirmPassword(e.target.value);
-        }}
-        placeholder="confirm password"
-      />
+      {error && <p className="error">{error}</p>}
+      <label>
+        Email:
+        <input
+          type="email"
+          placeholder="Your email address"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
+        />
+      </label>
+      <label>
+        Password:
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
+          placeholder="Your password"
+        />
+      </label>
+      <label>
+        Confirm Password:
+        <input
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+          }}
+          placeholder="Confirm password"
+        />
+      </label>
       <button onClick={createAccount}>Create Account</button>
-      <Link to="/login">Already have an accoutn? Log in here</Link>
-    </>
+      <Link to="/login">Already have an account? Log in here</Link>
+    </div>
   );
 };
 
