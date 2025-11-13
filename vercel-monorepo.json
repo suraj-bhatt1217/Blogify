@@ -26,3 +26,4 @@
   "installCommand": "cd blogify-fe && npm install && cd ../blogify-backend && npm install",
   "buildCommand": "cd blogify-fe && npm run build"
 }
+
