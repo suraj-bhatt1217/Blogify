@@ -36,6 +36,7 @@ const allowedOrigins = [
   'http://localhost:5173', // Vite default port
   'http://localhost:3000',
   'https://blogify-t7nc.vercel.app',
+  'https://blogify-five-theta.vercel.app', // Current frontend URL
   process.env.FRONTEND_URL, // From environment variable if set
 ];
 
@@ -212,13 +213,33 @@ app.post("/api/articles/:name/comments", requireAuth, async (req, res) => {
   }
 });
 
-// For Vercel: Don't serve static files or catch-all route - that's handled by frontend
-// Only serve API routes
+// Root route for backend - just return API info
+app.get("/", (req, res) => {
+  res.json({
+    message: "Blogify API Server",
+    version: "1.0.0",
+    endpoints: {
+      articles: "/api/articles/:name",
+      upvote: "/api/articles/:name/upvote",
+      comments: "/api/articles/:name/comments"
+    },
+    status: "running"
+  });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 // For local development: serve frontend and start server
 if (process.env.NODE_ENV !== 'production') {
   // Serve static files from frontend dist in local development
   app.get("*", (req, res) => {
+    // Don't override API routes
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ error: "API endpoint not found" });
+    }
     res.sendFile(path.join(__dirname, "../../blogify-fe/dist/index.html"));
   });
   

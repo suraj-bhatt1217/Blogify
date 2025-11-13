@@ -15,15 +15,12 @@ import AddCommentForm from "../components/AddCommentForm";
 //hooks
 import useUser from "../hooks/useUser";
 
-// Get API URL from environment variable or use fallback
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { getNormalizedApiUrl } from "../utils/api";
 
-// Normalize API URL to avoid duplication
-// If apiUrl is '/api', use empty string to prevent duplication
-const normalizedApiUrl = apiUrl === '/api' ? '' : apiUrl;
+// Get normalized API URL
+const normalizedApiUrl = getNormalizedApiUrl();
 
-console.log('Using API URL:', apiUrl);
-console.log('Normalized API URL:', normalizedApiUrl);
+console.log('Using API URL:', normalizedApiUrl);
 
 const ArticlePage = () => {
   const [articleInfo, setArticleInfo] = useState(null); // null = loading, {} = loaded
